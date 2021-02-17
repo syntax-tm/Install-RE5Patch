@@ -20,7 +20,7 @@ $ErrorActionPreference = 'Stop'
 if ($useLog)
 {
     $logFile = [Path]::ChangeExtension($PSCommandPath, ".log")
-    Start-Transcript -Path $logFile -UseMinimalHeader
+    Start-Transcript -Path $logFile
 }
 
 Function Initialize-Directory([string] $path) {
