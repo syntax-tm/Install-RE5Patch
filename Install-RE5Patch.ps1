@@ -9,7 +9,7 @@ $checkHash = $true
 $useLog = $true
 $deletePatchFile = $true
 $deleteTempFiles = $true
-$keepWindowOpen = $false
+$keepWindowOpen = $true
 
 # you shouldn't need to change anything below this line
 $patchUri = "http://www.sb-online.org/maluc/index.php?did=bh5fixes"
