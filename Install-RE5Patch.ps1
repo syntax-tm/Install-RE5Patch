@@ -9,7 +9,7 @@ $checkHash = $true
 $useLog = $true
 $deletePatchFile = $true
 $deleteTempFiles = $true
-$keepWindowOpen = $true
+$keepWindowOpen = $false
 
 # you shouldn't need to change anything below this line
 $patchUri = "http://www.sb-online.org/maluc/index.php?did=bh5fixes"
@@ -74,18 +74,22 @@ Function Get-RE5InstallPath()
 
     # check each location in the libraryfolders.vdf config
     $libraryFoldersPath = Join-Path $steamPath "steamapps\libraryfolders.vdf"
-    $libraryConfig = [File]::ReadAllText($libraryFoldersPath)
 
-    $libraryRegex = New-Object Regex('\"(?<id>[0-9]+)\"\t\t\"(?<path>.+)\"')    
-    [MatchCollection] $matches = $libraryRegex.Matches($libraryConfig)
+    if (Test-Path $libraryFoldersPath)
+    {
+        $libraryConfig = [File]::ReadAllText($libraryFoldersPath)
 
-    foreach ($match in $matches) {
-        $libraryPath = $match.Groups["path"].Value
-        $testRE5Path = Join-Path $libraryPath "steamapps\common\Resident Evil 5"
-        if (Test-Path $testRE5Path) {
-            return $testRE5Path
+        $libraryRegex = New-Object Regex('^\t{1}"(?<id>[0-9]+)"\t{2}"(?<path>.+)"$')    
+        [MatchCollection] $matches = $libraryRegex.Matches($libraryConfig)
+
+        foreach ($match in $matches) {
+            $libraryPath = $match.Groups["path"].Value
+            $testRE5Path = Join-Path $libraryPath "steamapps\common\Resident Evil 5"
+            if (Test-Path $testRE5Path) {
+                return $testRE5Path
+            }
         }
-    }
+    }    
 
     Throw "Unable to determine the install location of Resident Evil 5."
 }
@@ -103,13 +107,20 @@ Function Get-WinRarExe() {
 
 try {
 
-    $backupPath = Join-Path $PSScriptRoot "backup"
-    if (!(Test-Path $backupPath)) {
-        New-Item $backupPath -ItemType Directory -Force
-    }
-
+    # first thing is to check and see if RE5 is currently running
     if (Test-IsRE5Running) {
         Throw "Unable to apply the patch because the Resident Evil 5 process (re5dx9.exe) is currently running."
+    }
+
+    # ----------------------------------------------------------------------------------------
+    # create backup folder (if $makeBackup is $true)
+    # ----------------------------------------------------------------------------------------
+    if ($makeBackup)
+    {
+        $dateFormat = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+        $backupPath = Join-Path $PSScriptRoot "backup_$dateFormat"
+    
+        Initialize-Directory $backupPath
     }
 
     # ----------------------------------------------------------------------------------------
@@ -123,7 +134,7 @@ try {
     $linkMatch = $downloadLinkRegEx.Match($patchSiteContent)
     if (!($linkMatch.Success)) {
         Throw "Unable to determine the download link from '$patchUri'."
-    }    
+    }
     $relativeLink = $linkMatch.Groups["link"].Value
     $downloadUri = "http://www.sb-online.org/maluc/$relativeLink"
 
