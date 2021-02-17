@@ -2,7 +2,7 @@
 
 ## Features
 
-- Will download the latest community patch from [sb-online](htttp://www.sb-online.org/maluc/index.php?did=bh5fixes)
+- Will download the latest community patch from [sb-online](http://www.sb-online.org/maluc/index.php?did=bh5fixes)
 - Supports any install location (not just the default)
   - Checks the registry first and will search the default Steam install location and then check any library paths
 - Creates a backup of all files that are going to be replaced
