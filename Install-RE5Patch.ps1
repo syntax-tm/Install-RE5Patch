@@ -229,7 +229,7 @@ try {
     $patchFiles = Get-ChildItem $extractPath -File -Recurse
 
     foreach ($patchedFile in $patchFiles) {
-        $relativePath = [System.IO.Path]::GetRelativePath($extractPath, $patchedFile)
+        $relativePath = $extractPath.Replace($extractPath, [string]::Empty)
         $originalFilePath = Join-Path $re5Path $relativePath
         $originalFileExists = Test-Path $originalFilePath
 
